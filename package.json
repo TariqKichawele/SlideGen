@@ -16,15 +16,19 @@
     "@radix-ui/react-scroll-area": "^1.2.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.2",
+    "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.454.0",
     "next": "15.0.2",
+    "openai": "^4.70.3",
+    "pptxgenjs": "^3.12.0",
     "prisma": "^5.21.1",
     "react": "19.0.0-rc-02c0e824-20241028",
     "react-dom": "19.0.0-rc-02c0e824-20241028",
     "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "xmldom": "^0.6.0"
   },
   "devDependencies": {
     "@types/node": "^20",
