@@ -65,14 +65,14 @@ const NavbarMobile = ({ user }: { user: KindeUser<object> | null }) => {
             {user ? (
               <div className=" flex flex-col space-y-3">
                 <MobileLink href="/dashboard">Dashboard</MobileLink>
-                <LogoutLink href={"/logout"} className={buttonVariants()}>Log out</LogoutLink>
+                <LogoutLink className={buttonVariants()}>Log out</LogoutLink>
               </div>
             ) : (
               <div className="flex flex-col space-y-3">
-                <LoginLink href={"/login"} className={buttonVariants({ variant: "secondary" })}>
+                <LoginLink className={buttonVariants({ variant: "secondary" })}>
                   Login
                 </LoginLink>
-                <RegisterLink href={"/register"} className={buttonVariants()}>
+                <RegisterLink className={buttonVariants()}>
                   Sign up
                 </RegisterLink>
               </div>

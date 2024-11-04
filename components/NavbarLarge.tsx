@@ -11,6 +11,7 @@ import { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 const NavbarLarge = async () => {
   const { getUser } = getKindeServerSession();
   const user: KindeUser<object> | null = await getUser();
+  console.log(user);
 
   return (
     <MaxWidthWrapper className="flex items-center justify-between px-8 py-4 w-full text-gray-900 border-b border-gray-300">
