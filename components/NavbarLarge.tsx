@@ -4,12 +4,13 @@ import Link from "next/link";
 import NavbarMobile from "./NavbarMobile";
 import { LayoutDashboardIcon, Presentation } from "lucide-react";
 import { buttonVariants } from "./ui/button";
-// import { LoginLink, RegisterLink } from "@kinde-oss/kinde-auth-nextjs/components";
-// import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-// import { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
+import { LoginLink, RegisterLink } from "@kinde-oss/kinde-auth-nextjs/components";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 
 const NavbarLarge = async () => {
-  const user = null;
+  const { getUser } = getKindeServerSession();
+  const user: KindeUser<object> | null = await getUser();
 
   return (
     <MaxWidthWrapper className="flex items-center justify-between px-8 py-4 w-full text-gray-900 border-b border-gray-300">
@@ -34,15 +35,12 @@ const NavbarLarge = async () => {
           </Link>
         ) : (
           <div>
-            <Link
-              href="/login"
-              className={buttonVariants({ variant: "ghost" })}
-            >
+            <LoginLink className={buttonVariants({ variant: "ghost" })}>
               Login
-            </Link>
-            <Link  href="/register" className={buttonVariants()}>
+            </LoginLink>
+            <RegisterLink className={buttonVariants()}>
               Create Account
-            </Link>
+            </RegisterLink>
           </div>
         )}
       </div>

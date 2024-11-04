@@ -7,12 +7,12 @@ import { LinkProps } from "next/link";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
 import Link from "next/link";
-// import {
-//   LoginLink,
-//   LogoutLink,
-//   RegisterLink,
-// } from "@kinde-oss/kinde-auth-nextjs/components";
-// import { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
+import {
+  LoginLink,
+  LogoutLink,
+  RegisterLink,
+} from "@kinde-oss/kinde-auth-nextjs/components";
+import { KindeUser } from "@kinde-oss/kinde-auth-nextjs/types";
 
 interface MobileLinkProps extends LinkProps {
   onOpenChange?: (open: boolean) => void;
@@ -39,7 +39,7 @@ function MobileLink({
   );
 }
 
-const NavbarMobile = ({ user }: { user: null }) => {
+const NavbarMobile = ({ user }: { user: KindeUser<object> | null }) => {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
@@ -65,16 +65,16 @@ const NavbarMobile = ({ user }: { user: null }) => {
             {user ? (
               <div className=" flex flex-col space-y-3">
                 <MobileLink href="/dashboard">Dashboard</MobileLink>
-                <Link href={"/logout"} className={buttonVariants()}>Log out</Link>
+                <LogoutLink href={"/logout"} className={buttonVariants()}>Log out</LogoutLink>
               </div>
             ) : (
               <div className="flex flex-col space-y-3">
-                <Link href={"/login"} className={buttonVariants({ variant: "secondary" })}>
+                <LoginLink href={"/login"} className={buttonVariants({ variant: "secondary" })}>
                   Login
-                </Link>
-                <Link href={"/register"} className={buttonVariants()}>
+                </LoginLink>
+                <RegisterLink href={"/register"} className={buttonVariants()}>
                   Sign up
-                </Link>
+                </RegisterLink>
               </div>
             )}
           </div>
