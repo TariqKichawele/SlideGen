@@ -8,6 +8,15 @@ import { zodResponseFormat } from 'openai/helpers/zod';
 import pptxgen from 'pptxgenjs';
 import { randomUUID } from 'crypto';
 import path from 'path';
+import type { UploadFileResult } from 'uploadthing/types';
+import { UTApi } from 'uploadthing/server';
+import fs from 'fs';
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
+import { db } from '@/db';
+
+const utapi = new UTApi({
+    token: process.env.UPLOADTHING_TOKEN,
+})
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -44,7 +53,78 @@ const arrayOfObjectsSchema = z.object({
 type TitleDescription = z.infer<typeof TitleAndDescriptionSchema>
 
 export const CreatePowerpoint = async (videoId: string) => {
+    try {
+        const { getUser } = getKindeServerSession();
+        const user = await getUser();
 
+        if (!user || !user.id) {
+            return { success: false };
+        };
+
+        const dbUser = await db.user.findFirst({
+            where: {
+                id: user.id
+            }
+        });
+
+        if (!dbUser) {
+            return { success: false };
+        }
+
+        const { length, subtitlesURL } = await GetVideoLengthAndSubtitles(videoId);
+        console.log(length, subtitlesURL);
+
+        if(length && length > 600) {
+            throw new Error('Video length is too long needs to be less than 10 minutes');
+        };
+
+        const parsedSubtitles = await parseXMLContent(subtitlesURL || "");
+
+        if(!parsedSubtitles) {
+            throw new Error('Failed to parse XML content');
+        };
+
+        const fullText = parsedSubtitles?.map((item) => item.text).join(" ");
+
+        const [ titleAndDescription, slideObjects ] = await Promise.all([
+            CreateTitleAndDescription(fullText),
+            ConvertToObjects(fullText)
+        ]);
+
+        if(!slideObjects) {
+            throw new Error('Failed to convert text to objects');
+        };
+
+        const { fileName, filePath } = await CreatePowerpointFromArrayOfObjects(
+            titleAndDescription,
+            slideObjects,
+            user.id
+        );
+
+        const fileBuffer = await fs.promises.readFile(filePath);
+        const uploadResult = await UploadPowerpointToUploadThing( fileBuffer, fileName );
+
+        if(!uploadResult[0].data?.url) {
+            throw new Error('Failed to upload powerpoint');
+        };
+
+        await db.generatedPowerpoints.create({
+            data: {
+                link: uploadResult[0].data.url,
+                ownerId: user.id,
+                title: titleAndDescription.title,
+                description: titleAndDescription.description
+            }
+        });
+
+        await fs.promises.unlink(filePath);
+
+        return { success: true };
+
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to create powerpoint');        
+    }
 }
 
 export async function parseXMLContent(url: string): Promise<SubtitleItem[] | null> {
@@ -241,5 +321,24 @@ export async function CreatePowerpointFromArrayOfObjects(
     } catch (error) {
         console.error(error);
         throw new Error('Failed to create Powerpoint presentation');
+    }
+}
+
+export async function UploadPowerpointToUploadThing(fileBuffer: Buffer, fileName: string): Promise<UploadFileResult[]> {
+    try {
+        const file = new File([fileBuffer], fileName, {
+            type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        });
+
+        const res = await utapi.uploadFiles([file]);
+
+        if(!res?.[0].data?.url) {
+            throw new Error('Failed to upload Powerpoint presentation');
+        }
+
+        return res;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Failed to upload Powerpoint presentation');
     }
 }

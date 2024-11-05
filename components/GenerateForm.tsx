@@ -105,6 +105,11 @@ export default function GenerateForm() {
             </span>
           </h1>
           <Card className="p-8 shadow-xl bg-white/80 backdrop-blur-sm border-0">
+            {error && (
+              <div className="mb-4 text-red-500 text-center">
+                {error}
+              </div>
+            )}
             {isValid ? (
               <div className="mb-8 aspect-video rounded-xl overflow-hidden shadow-lg">
                 <iframe
